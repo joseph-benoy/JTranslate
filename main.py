@@ -9,7 +9,7 @@ from langauges import Languages
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(797, 589)
+        MainWindow.resize(850, 589)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("icons8-translation-64.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
@@ -187,11 +187,14 @@ class Ui_MainWindow(object):
         self.actionSave_translation.setShortcut(_translate("MainWindow", "Ctrl+Q"))
     def addLangList(self):
     	self.SrcLangList = QComboBox()
-    	self.SrcLabel = QLabel('Src : ')
-    	self.Destlabel = QLabel('Dest : ')
+    	self.SrcLabel = QLabel('  Src : ')
+    	self.Destlabel = QLabel('   Dest : ')
+    	self.TranslateBtn = QPushButton('Translate',MainWindow)
     	self.DestLangList = QComboBox()
+    	self.sep = QLabel('  | ')
     	self.LangList = Languages()
     	self.LangList = self.LangList.getLanguages()
+    	self.SrcLangList.addItem('Auto Detect')
     	for i in self.LangList:
     		self.SrcLangList.addItem(i)
     		self.DestLangList.addItem(i)
@@ -199,6 +202,8 @@ class Ui_MainWindow(object):
     	self.toolBar.addWidget(self.SrcLangList)
     	self.toolBar.addWidget(self.Destlabel)
     	self.toolBar.addWidget(self.DestLangList)
+    	self.toolBar.addWidget(self.sep)
+    	self.toolBar.addWidget(self.TranslateBtn)
 
 
 if __name__ == "__main__":
