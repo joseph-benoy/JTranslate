@@ -318,7 +318,10 @@ class Ui_MainWindow(object):
     	self.DestLang = self.DestLangList.currentText()
     	Data = self.TextInput.toPlainText()
     	self.TransData = self.Trans.translate(src=self.SrcLang,dest=self.DestLang,data=Data)
-    	self.TextOutput.setText(self.TransData)
+    	if(self.TransData==None):
+    		QMessageBox.critical(MainWindow,'Network Error!','Bad network connection!')
+    	else:
+    		self.TextOutput.setText(self.TransData)
     def saveTranslation(self):
     	data = self.TextOutput.toPlainText()
     	if(self.TransNew):

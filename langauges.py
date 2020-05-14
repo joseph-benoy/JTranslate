@@ -143,9 +143,15 @@ class Trans:
 	def translate(self,src,dest,data):
 		Keys = self.getKey(src,dest)
 		if(Keys[0]=='auto'):
-			TransData = self.translator.translate(data,dest=dest)
+			try:
+				TransData = self.translator.translate(data,dest=dest)
+			except:
+				return None
 		else:
-			TransData = self.translator.translate(data,dest=Keys[1],src=Keys[0])
+			try:
+				TransData = self.translator.translate(data,dest=Keys[1],src=Keys[0])
+			except:
+				return None
 		return TransData.text
 
 
