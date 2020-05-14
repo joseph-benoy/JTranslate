@@ -154,6 +154,11 @@ class Ui_MainWindow(object):
         self.actionSave_as.triggered.connect(self.saveAsFile)
         self.actionExit.triggered.connect(self.exitApp)
        	self.TextInput.textChanged.connect(self.unsaved)
+       	self.actionUndo.triggered.connect(self.undo)
+       	self.actionRedo.triggered.connect(self.redo)
+       	self.actionCut.triggered.connect(self.cut)
+       	self.actionCopy.triggered.connect(self.copy)
+       	self.actionPaste.triggered.connect(self.paste)
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Jtranslate"))
@@ -295,6 +300,17 @@ class Ui_MainWindow(object):
             app.exit()
     def unsaved(self):
     	self.Saved = False
+    def undo(self):
+    	self.TextInput.undo()
+    def redo(self):
+    	self.TextInput.redo()
+    def cut(self):
+    	self.TextInput.cut()
+    def copy(self):
+    	self.TextInput.copy()
+    def paste(self):
+    	self.TextInput.paste()
+
 
 class MainWindow(QMainWindow):
 	def __init__(self):
