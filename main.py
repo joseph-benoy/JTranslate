@@ -9,7 +9,7 @@ from langauges import Languages
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(850, 589)
+        MainWindow.resize(800, 589)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("icons8-translation-64.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
@@ -146,7 +146,14 @@ class Ui_MainWindow(object):
         self.addLangList()
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
+        self.NewFileFlag = True
+        self.Saved = False
+        self.actionOpen.triggered.connect(self.openFile)
+        self.actionSave.triggered.connect(self.saveFile)
+        self.actionNew.triggered.connect(self.newFile)
+        self.actionSave_as.triggered.connect(self.saveAsFile)
+        self.actionExit.triggered.connect(self.exitApp)
+       	self.TextInput.textChanged.connect(self.unsaved)
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Jtranslate"))
@@ -189,7 +196,7 @@ class Ui_MainWindow(object):
     	self.SrcLangList = QComboBox()
     	self.SrcLabel = QLabel('  Src : ')
     	self.Destlabel = QLabel('   Dest : ')
-    	self.TranslateBtn = QPushButton('Translate',MainWindow)
+    	self.TranslateBtn = QPushButton('',MainWindow)
     	self.DestLangList = QComboBox()
     	self.sep = QLabel('  | ')
     	self.LangList = Languages()
@@ -204,12 +211,113 @@ class Ui_MainWindow(object):
     	self.toolBar.addWidget(self.DestLangList)
     	self.toolBar.addWidget(self.sep)
     	self.toolBar.addWidget(self.TranslateBtn)
+    	self.TranslateBtn.setIcon(QIcon('icons8-refresh-26.png'))
+    def newFile(self):
+    	data = self.TextInput.toPlainText()
+    	if(data!=''):
+    		SaveOption = QMessageBox.question(MainWindow,'Unsaved file','Do you want to save the file?',QMessageBox.Save|QMessageBox.Discard|QMessageBox.Cancel,QMessageBox.Save)
+    		if(SaveOption==QMessageBox.Save):
+    			self.saveFile()
+    			if(self.Saved):
+    				self.fname=""
+		    		self.TextInput.setText("")
+		    		self.NewFileFlag = True
+		    	else:
+		    		pass
+    		elif(SaveOption==QMessageBox.Discard):
+		    	self.fname=""
+		    	self.TextInput.setText("")
+		    	self.NewFileFlag = True
+    		else:
+		    	pass
+
+    def openFile(self):
+    	try:
+	    	fname = QFileDialog.getOpenFileName(MainWindow,'Open a file',"","Text files(*.txt)")
+	    	if(fname[0]!=''):
+	    		self.fname = fname
+		    	print('File opened : ',self.fname[0])
+		    	file = open(self.fname[0],'r+')
+		    	data = file.read()
+		    	self.TextInput.setText(data)
+		    	self.NewFileFlag = False
+		    	file.close()
+		    	print(self.fname)
+    	except:
+	    	pass
+    def saveFile(self):
+    	data = self.TextInput.toPlainText()
+    	if(self.NewFileFlag):
+    		try:
+		    	self.fname = QFileDialog.getSaveFileName(MainWindow,'Save file',"","Text files(*.txt)")
+		    	if(self.fname[0]!=''):
+			    	print(self.fname[0])
+			    	file = open(self.fname[0],'w+')
+			    	file.write(data)
+			    	file.close()
+			    	self.NewFileFlag = False
+			    	self.Saved = True
+			    	print('sdkjhesjshshjs = ',self.fname)
+		    	else:
+		    		print('sdkjhesjshshjs = ',self.fname)
+			    	self.Saved = False
+    		except Exception as error:
+    			print('File saving error : ',error)
+		    	pass
+    	else:
+	    	file = open(self.fname[0],'w+')
+	    	file.write(data)
+	    	file.close()
+    		self.Saved = True
+    def saveAsFile(self):
+    	data = self.TextInput.toPlainText()
+    	try:
+	    	self.fnameAs = QFileDialog.getSaveFileName(MainWindow,'Save as file',"","Text files(*.txt)")
+	    	print(self.fnameAs[0])
+	    	file = open(self.fnameAs[0],'w+')
+	    	file.write(data)
+	    	file.close()
+	    	self.NewFileFlag = False
+    	except:
+	    	pass
+    def exitApp(self):
+        if(not self.Saved):
+            ExitOption = QMessageBox.question(MainWindow,'Unsaved file','Do you want to save the file?',QMessageBox.Save|QMessageBox.Discard|QMessageBox.Cancel,QMessageBox.Save)
+            if(ExitOption==QMessageBox.Save):
+            	self.saveFile()
+            	if(self.Saved):
+            		app.exit()
+            elif(ExitOption==QMessageBox.Discard):
+            	app.exit()
+            else:
+            	pass
+        else:
+            app.exit()
+    def unsaved(self):
+    	self.Saved = False
+
+class MainWindow(QMainWindow):
+	def __init__(self):
+		super().__init__()
+	def exitApp(self,ui):
+		if(not ui.Saved):
+			ExitOption = QMessageBox.question(MainWindow,'Unsaved file','Do you want to save the file?',QMessageBox.Save|QMessageBox.Discard,QMessageBox.Save)
+			if(ExitOption==QMessageBox.Save):
+				ui.saveFile()
+				if(ui.Saved):
+					app.exit()
+			elif(ExitOption==QMessageBox.Discard):
+				app.exit()
+			else:
+				print('Cancel')
+	def closeEvent(self,event):
+		self.exitApp(ui)
 
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
+    MainWindow = MainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()
