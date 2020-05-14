@@ -156,6 +156,7 @@ class Ui_MainWindow(object):
         self.actionSave_as.triggered.connect(self.saveAsFile)
         self.actionExit.triggered.connect(self.exitApp)
        	self.TextInput.textChanged.connect(self.unsaved)
+       	self.TextInput.textChanged.connect(self.wordCheck)
        	self.actionUndo.triggered.connect(self.undo)
        	self.actionRedo.triggered.connect(self.redo)
        	self.actionCut.triggered.connect(self.cut)
@@ -240,7 +241,6 @@ class Ui_MainWindow(object):
 		    	self.NewFileFlag = True
     		else:
 		    	pass
-
     def openFile(self):
     	try:
 	    	fname = QFileDialog.getOpenFileName(MainWindow,'Open a file',"","Text files(*.txt)")
@@ -342,7 +342,14 @@ class Ui_MainWindow(object):
     			self.TranSaved = True
     		except Exception as Error:
     			print('File saving error! : ',error)
-
+    def wordCheck(self):
+    	data = self.TextInput.toPlainText()
+    	lenStr = len(data)
+    	if(lenStr==0):
+    		pass
+    	else:
+    		if(data[-1]=='.'):
+    			self.translateData()
 class MainWindow(QMainWindow):
 	def __init__(self):
 		super().__init__()
