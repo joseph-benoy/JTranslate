@@ -1,3 +1,5 @@
+from googletrans import *
+
 class Languages:
 	def __init__(self):
 		self.LANGUAGES = {
@@ -118,8 +120,40 @@ class Languages:
 		for i in list(self.LANGUAGES.keys()):
 			lst.append(i)
 		return lst
+class Trans:
+	def __init__(self):
+		self.Language  = Languages()
+		self.LangList = self.Language.getLanguages()
+		self.LangKeyList = self.Language.getLanguageCodes()
+		self.LangDict = dict(zip(self.LangList,self.LangKeyList))
+		self.translator = Translator()
+	def getKey(self,src,dest):
+		if(src in self.LangList):
+			SrcKey = self.LangDict[src]
+		else:
+			SrcKey = 'auto'
+		if(dest in self.LangList):
+			DestKey = self.LangDict[dest]
+		else:
+			print('Dest lang. not found')
+		Keys = []
+		Keys.append(SrcKey)
+		Keys.append(DestKey)
+		return Keys
+	def translate(self,src,dest,data):
+		Keys = self.getKey(src,dest)
+		if(Keys[0]=='auto'):
+			TransData = self.translator.translate(data,dest=dest)
+		else:
+			TransData = self.translator.translate(data,dest=Keys[1],src=Keys[0])
+		return TransData.text
+
 
 if(__name__=='__main__'):
 	lang = Languages()
 	print(lang.getLanguages())
 	print(lang.getLanguageCodes())
+	trans = Trans()
+	print(trans.translate('english','malayalam','hello'))
+
+

@@ -3,8 +3,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import sys
-from googletrans import *
-from langauges import Languages
+from langauges import Languages,Trans
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -24,7 +23,7 @@ class Ui_MainWindow(object):
         self.TextInput.setFont(font)
         self.TextInput.setObjectName("TextInput")
         self.gridLayout.addWidget(self.TextInput, 0, 0, 1, 1)
-        self.TextOutput = QtWidgets.QTextBrowser(self.centralwidget)
+        self.TextOutput = QtWidgets.QTextEdit(self.centralwidget)
         font = QtGui.QFont()
         font.setFamily("Microsoft YaHei UI")
         font.setPointSize(11)
@@ -144,10 +143,13 @@ class Ui_MainWindow(object):
         self.toolBar.addSeparator()
         self.toolBar.addAction(self.actionExit)
         self.addLangList()
+        self.Trans = Trans()
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         self.NewFileFlag = True
         self.Saved = False
+        self.TransNew = True
+        self.TranSaved = False
         self.actionOpen.triggered.connect(self.openFile)
         self.actionSave.triggered.connect(self.saveFile)
         self.actionNew.triggered.connect(self.newFile)
@@ -159,6 +161,8 @@ class Ui_MainWindow(object):
        	self.actionCut.triggered.connect(self.cut)
        	self.actionCopy.triggered.connect(self.copy)
        	self.actionPaste.triggered.connect(self.paste)
+       	self.TranslateBtn.clicked.connect(self.translateData)
+       	self.actionSave_translation.triggered.connect(self.saveTranslation)
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Jtranslate"))
@@ -206,7 +210,7 @@ class Ui_MainWindow(object):
     	self.sep = QLabel('  | ')
     	self.LangList = Languages()
     	self.LangList = self.LangList.getLanguages()
-    	self.SrcLangList.addItem('Auto Detect')
+    	self.SrcLangList.addItem('auto')
     	for i in self.LangList:
     		self.SrcLangList.addItem(i)
     		self.DestLangList.addItem(i)
@@ -226,6 +230,7 @@ class Ui_MainWindow(object):
     			if(self.Saved):
     				self.fname=""
 		    		self.TextInput.setText("")
+		    		self.TextOutput.setText("")
 		    		self.NewFileFlag = True
 		    	else:
 		    		pass
@@ -242,7 +247,7 @@ class Ui_MainWindow(object):
 	    	if(fname[0]!=''):
 	    		self.fname = fname
 		    	print('File opened : ',self.fname[0])
-		    	file = open(self.fname[0],'r+')
+		    	file = open(self.fname[0],'r+',encoding='utf-8')
 		    	data = file.read()
 		    	self.TextInput.setText(data)
 		    	self.NewFileFlag = False
@@ -262,9 +267,7 @@ class Ui_MainWindow(object):
 			    	file.close()
 			    	self.NewFileFlag = False
 			    	self.Saved = True
-			    	print('sdkjhesjshshjs = ',self.fname)
 		    	else:
-		    		print('sdkjhesjshshjs = ',self.fname)
 			    	self.Saved = False
     		except Exception as error:
     			print('File saving error : ',error)
@@ -310,7 +313,35 @@ class Ui_MainWindow(object):
     	self.TextInput.copy()
     def paste(self):
     	self.TextInput.paste()
+    def translateData(self):
+    	self.SrcLang = self.SrcLangList.currentText()
+    	self.DestLang = self.DestLangList.currentText()
+    	Data = self.TextInput.toPlainText()
+    	self.TransData = self.Trans.translate(src=self.SrcLang,dest=self.DestLang,data=Data)
+    	self.TextOutput.setText(self.TransData)
+    def saveTranslation(self):
+    	data = self.TextOutput.toPlainText()
+    	if(self.TransNew):
+    		try:
+    			TransFname = QFileDialog.getSaveFileName(MainWindow,'Save Translation',"","Text file(*.txt)")
+    			if(TransFname!=''):
+    				self.TransFname = TransFname
+    				file = open(self.TransFname[0],'w',encoding='utf-8')
+    				file.write(data)
+    				file.close()
+    				self.TranSaved = True
+    				self.TransNew = False
 
+    		except Exception as error:
+    			print('File saving error! : ',error)
+    	else:
+    		try:
+    			file = open(self.TransFname[0],'w',encoding='utf-8')
+    			file.write(data)
+    			file.close()
+    			self.TranSaved = True
+    		except Exception as Error:
+    			print('File saving error! : ',error)
 
 class MainWindow(QMainWindow):
 	def __init__(self):
@@ -320,6 +351,7 @@ class MainWindow(QMainWindow):
 			ExitOption = QMessageBox.question(MainWindow,'Unsaved file','Do you want to save the file?',QMessageBox.Save|QMessageBox.Discard,QMessageBox.Save)
 			if(ExitOption==QMessageBox.Save):
 				ui.saveFile()
+				ui.saveTranslation()
 				if(ui.Saved):
 					app.exit()
 			elif(ExitOption==QMessageBox.Discard):
